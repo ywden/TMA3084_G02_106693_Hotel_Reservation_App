@@ -1,0 +1,110 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:your_app/booking_form_page.dart';
+
+void main() {
+  Future<void> loadBookingForm(WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: BookingFormPage(),
+      ),
+    );
+  }
+
+  // AC1
+  testWidgets(
+      'AC1 Given empty form when Reserve is tapped then all required errors appear',
+      (WidgetTester tester) async {
+    await loadBookingForm(tester);
+
+    await tester.tap(find.text('Reserve'));
+    await tester.pump();
+
+    expect(find.textContaining('name', findRichText: true), findsOneWidget);
+    expect(find.textContaining('phone', findRichText: true), findsOneWidget);
+    expect(find.textContaining('check', findRichText: true), findsOneWidget);
+    expect(find.textContaining('policy', findRichText: true), findsOneWidget);
+  });
+
+  // AC2
+  testWidgets(
+      'AC2 Given phone number shorter than 10 digits when Reserve is tapped then phone validation message appears',
+      (WidgetTester tester) async {
+    await loadBookingForm(tester);
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'John');
+    await tester.enterText(find.byType(TextFormField).at(1), '12345');
+
+    await tester.tap(find.text('Reserve'));
+    await tester.pump();
+
+    expect(
+      find.text('Use 10 or 11 digits, numbers only'),
+      findsOneWidget,
+    );
+  });
+
+  // AC3
+  testWidgets(
+      'AC3 Given name shorter than 3 characters when Reserve is tapped then name validation message appears',
+      (WidgetTester tester) async {
+    await loadBookingForm(tester);
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'Al');
+
+    await tester.tap(find.text('Reserve'));
+    await tester.pump();
+
+    expect(
+      find.text('Name must have at least 3 characters'),
+      findsOneWidget,
+    );
+  });
+
+  // AC4
+  testWidgets(
+      'AC4 Given valid details when Reserve is tapped then Choose Your Room screen opens',
+      (WidgetTester tester) async {
+    await loadBookingForm(tester);
+
+    await tester.enterText(
+        find.byType(TextFormField).at(0), 'John Smith');
+    await tester.enterText(
+        find.byType(TextFormField).at(1), '0123456789');
+    await tester.enterText(
+        find.byType(TextFormField).at(2), '20/12/2026');
+
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+
+    await tester.tap(find.text('Reserve'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Choose Your Room'), findsOneWidget);
+  });
+
+  // AC5
+  testWidgets(
+      'AC5 Given a name error when a valid name is entered then the error disappears',
+      (WidgetTester tester) async {
+    await loadBookingForm(tester);
+
+    await tester.tap(find.text('Reserve'));
+    await tester.pump();
+
+    expect(
+      find.text('Name must have at least 3 characters'),
+      findsOneWidget,
+    );
+
+    await tester.enterText(
+        find.byType(TextFormField).at(0), 'John');
+    await tester.pump();
+
+    expect(
+      find.text('Name must have at least 3 characters'),
+      findsNothing,
+    );
+  });
+}
