@@ -49,3 +49,8 @@ jobs:
           name: coverage-report
           path: coverage/lcov.info
           retention-days: 14
+            - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.6'   # replace with YOUR version
+          cache: true
